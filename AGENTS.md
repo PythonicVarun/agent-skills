@@ -1,7 +1,43 @@
-Available tools:
+# AGENTS instructions
 
-fd, rg, git
-curl
-uv, uv run, uv pip, uvx (avoid python/pip)
-uvx ruff, uvx yt-dlp, uvx markitdown
-duckdb, sqlite3
+## Tools
+
+Prefer these over alternatives:
+
+> **Python rule:** Always use `uv`/`uvx` instead of `python` or `pip`. No exceptions.
+> - Run scripts: `uv run script.py` not `python script.py`
+> - Install packages: `uv pip install` not `pip install`
+> - Sync dependencies from lockfile: `uv sync` instead of installing manually
+> - Run tools: `uvx ruff`, `uvx yt-dlp`, etc. not `pip install` + run
+
+| Purpose | Use |
+|---|---|
+| Python runtime & packages | `uv run`, `uv pip`, `uvx` |
+| Linting / formatting | `uvx ruff check`, `uvx ruff format` |
+| File search | `fd` (find), `rg` (grep) |
+| Media / docs | `uvx yt-dlp`, `uvx markitdown` |
+| Databases | `duckdb`, `sqlite3` |
+| HTTP | `curl` |
+| VCS | `git` |
+
+## Code Style
+
+- **Python**: type hints on all function signatures; no `Any` unless truly necessary. Prefer `pathlib` over `os.path`. Use f-strings.
+- **JS/TS**: ESM (`import`/`export`), no CommonJS. Prefer `const`. Async functions over `.then()` chains.
+- Errors should be explicit - no silent `except: pass` or swallowed promise rejections.
+- Keep functions small and single-purpose - each function should do exactly one thing. If a function is fetching, parsing, and saving, split it.
+- Don't repeat logic. If something is used more than once, extract it into a function.
+
+## Workflow
+
+1. **Read before writing.** Understand the existing structure before adding or editing files.
+2. **Targeted edits.** Change only what the task requires - don't refactor unrelated code.
+3. **Verify before marking done.** Run the relevant script or test; don't declare success without evidence.
+4. **Use the right tool for search.** `rg` for content, `fd` for filenames - don't `ls` recursively or `cat` whole directories.
+5. **Prefer in-place fixes.** Edit files directly rather than creating copies or backups unless asked.
+
+## Output & Communication
+
+- Be concise. Explain *what* changed and *why*, not a line-by-line narration.
+- If the prompt is unclear or underspecified, ask for clarification before proceeding - don't make assumptions that could lead the work in the wrong direction.
+- Surface blockers immediately (missing dependency, permission error, unclear requirement) instead of working around them silently.
