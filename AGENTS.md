@@ -5,20 +5,21 @@
 Prefer these over alternatives:
 
 > **Python rule:** Always use `uv`/`uvx` instead of `python` or `pip`. No exceptions.
+>
 > - Run scripts: `uv run script.py` not `python script.py`
 > - Install packages: `uv pip install` not `pip install`
 > - Sync dependencies from lockfile: `uv sync` instead of installing manually
 > - Run tools: `uvx ruff`, `uvx yt-dlp`, etc. not `pip install` + run
 
-| Purpose | Use |
-|---|---|
-| Python runtime & packages | `uv run`, `uv pip`, `uvx` |
-| Linting / formatting | `uvx ruff check`, `uvx ruff format` |
-| File search | `fd` (find), `rg` (grep) |
-| Media / docs | `uvx yt-dlp`, `uvx markitdown` |
-| Databases | `duckdb`, `sqlite3` |
-| HTTP | `curl` |
-| VCS | `git` |
+| Purpose                   | Use                                 |
+| ------------------------- | ----------------------------------- |
+| Python runtime & packages | `uv run`, `uv pip`, `uvx`           |
+| Linting / formatting      | `uvx ruff check`, `uvx ruff format` |
+| File search               | `fd` (find), `rg` (grep)            |
+| Media / docs              | `uvx yt-dlp`, `uvx markitdown`      |
+| Databases                 | `duckdb`, `sqlite3`                 |
+| HTTP                      | `curl`                              |
+| VCS                       | `git`                               |
 
 ## Code Style
 
@@ -36,8 +37,16 @@ Prefer these over alternatives:
 4. **Use the right tool for search.** `rg` for content, `fd` for filenames - don't `ls` recursively or `cat` whole directories.
 5. **Prefer in-place fixes.** Edit files directly rather than creating copies or backups unless asked.
 
+## Persistent Command Logging
+
+If you run commands that make permanent system changes (Registry edits, shell profile/startup changes, service/scheduled-task changes, or persistent environment-variable changes), log the exact command and its result to:
+
+```bash
+$LLM_LOGGING_PATH/copilot/cmds/<date>_<model>.log
+```
+
 ## Output & Communication
 
-- Be concise. Explain *what* changed and *why*, not a line-by-line narration.
+- Be concise. Explain _what_ changed and _why_, not a line-by-line narration.
 - If the prompt is unclear or underspecified, ask for clarification before proceeding - don't make assumptions that could lead the work in the wrong direction.
 - Surface blockers immediately (missing dependency, permission error, unclear requirement) instead of working around them silently.
