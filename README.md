@@ -13,6 +13,10 @@ The shared rules are defined in `AGENTS.md`. Different coding agents load global
 | **Copilot**     | `.copilot`              | `AGENTS.md`      |
 | **Gemini CLI**  | `.gemini`               | `GEMINI.md`      |
 
+## Environment Variables
+
+The persistent command logging feature requires a global environment variable named `LLM_LOGGING_PATH` to be set on your system. This variable specifies the directory where agents will log command execution history.
+
 ---
 
 ## Setup Instructions
