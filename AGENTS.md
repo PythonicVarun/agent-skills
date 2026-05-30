@@ -42,7 +42,7 @@ Prefer these over alternatives:
 If you run commands that make permanent system changes (Registry edits, shell profile/startup changes, service/scheduled-task changes, or persistent environment-variable changes), log the exact command and its result to:
 
 ```bash
-$LLM_LOGGING_PATH/copilot/cmds/<date>_<model>.log
+$LLM_LOGGING_PATH/<agent_currently_user_talking_to_like_copilot_codex_etc>/cmds/<date>_<model>.log
 ```
 
 ## Output & Communication
