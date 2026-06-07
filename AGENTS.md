@@ -23,11 +23,7 @@ Prefer these over alternatives:
 
 ## Code Style
 
-- **Python**: type hints on all function signatures; no `Any` unless truly necessary. Prefer `pathlib` over `os.path`. Use f-strings.
-- **JS/TS**: ESM (`import`/`export`), no CommonJS. Prefer `const`. Async functions over `.then()` chains.
-- Errors should be explicit - no silent `except: pass` or swallowed promise rejections.
-- Keep functions small and single-purpose - each function should do exactly one thing. If a function is fetching, parsing, and saving, split it.
-- Don't repeat logic. If something is used more than once, extract it into a function.
+@./skills/coding-style/SKILL.md
 
 ## Workflow
 
