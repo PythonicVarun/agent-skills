@@ -19,6 +19,7 @@ Prefer these over alternatives:
 | Media / docs              | `uvx yt-dlp`, `uvx markitdown`      |
 | Databases                 | `duckdb`, `sqlite3`                 |
 | HTTP                      | `curl`                              |
+| JSON processing           | `jq`                                |
 | VCS                       | `git`                               |
 
 ## Code Style
