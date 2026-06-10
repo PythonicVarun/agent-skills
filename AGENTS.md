@@ -33,6 +33,7 @@ Prefer these over alternatives:
 3. **Verify before marking done.** Run the relevant script or test; don't declare success without evidence.
 4. **Use the right tool for search.** `rg` for content, `fd` for filenames - don't `ls` recursively or `cat` whole directories.
 5. **Prefer in-place fixes.** Edit files directly rather than creating copies or backups unless asked.
+6. **No direct `.env` file access.** Never read or write `.env` files. If environment variables are required, ask the user for the specific variables rather than handling the file directly.
 
 ## Persistent Command Logging
 
