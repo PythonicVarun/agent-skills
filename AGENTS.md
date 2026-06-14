@@ -26,6 +26,10 @@ Prefer these over alternatives:
 
 @./skills/coding-style/SKILL.md
 
+## Data Analysis
+
+@./skills/data-analysis/SKILL.md
+
 ## Workflow
 
 1. **Read before writing.** Understand the existing structure before adding or editing files.
