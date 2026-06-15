@@ -9,14 +9,20 @@ This repository contains shared instructions for AI agents to maintain consisten
 ├── AGENTS.md                        # Universal agent rules (tools, workflow, logging, communication)
 ├── CLAUDE.md                        # Claude Code entry point - imports AGENTS.md
 ├── skills/
-│   └── coding-style/
-│       └── SKILL.md                 # Code-specific style rules (Python, JS/TS, general practices)
+│   ├── coding-style/
+│   │   └── SKILL.md                 # Code-specific style rules (Python, JS/TS, general practices)
+│   ├── data-analysis/
+│   │   └── SKILL.md                 # Investigative data analysis guidelines and best practices
+│   └── ui-design/
+│       └── SKILL.md                 # UI design guidelines, themes, and reveal transitions
 └── README.md
 ```
 
-- **`AGENTS.md`** - Universal rules that apply to all agent interactions. References `skills/coding-style/SKILL.md` for coding tasks.
+- **`AGENTS.md`** - Universal rules that apply to all agent interactions. References `skills/coding-style/SKILL.md` for coding tasks, `skills/data-analysis/SKILL.md` for data analysis tasks, and `skills/ui-design/SKILL.md` for UI and animations.
 - **`CLAUDE.md`** - Thin wrapper for Claude Code that `@`-imports `AGENTS.md`.
 - **`skills/coding-style/SKILL.md`** - Language-specific style guide with examples. Loaded automatically via the `@` directive in `AGENTS.md` when the agent is working on code.
+- **`skills/data-analysis/SKILL.md`** - Guidelines for investigative data analysis, including definition, signal hunting, verification, and formatting. Loaded automatically via the `@` directive in `AGENTS.md` when the agent is performing data analysis.
+- **`skills/ui-design/SKILL.md`** - UI design rules, theme toggles, and circular transitions. Loaded automatically via the `@` directive in `AGENTS.md` when the agent is designing interfaces.
 
 ## Configuration Directory Mapping
 

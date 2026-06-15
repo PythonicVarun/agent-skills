@@ -30,6 +30,10 @@ Prefer these over alternatives:
 
 @./skills/data-analysis/SKILL.md
 
+## UI Design
+
+@./skills/ui-design/SKILL.md
+
 ## Workflow
 
 1. **Read before writing.** Understand the existing structure before adding or editing files.
