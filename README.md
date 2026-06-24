@@ -124,18 +124,18 @@ Run Command Prompt as an **Administrator**.
 2. **Create symbolic links (instruction files):**
 
     ```bash
-    ln -sf "[PATH_TO_CLONED_REPO]/AGENTS.md" ~/.claude/AGENTS.md
-    ln -sf "[PATH_TO_CLONED_REPO]/CLAUDE.md" ~/.claude/CLAUDE.md
-    ln -sf "[PATH_TO_CLONED_REPO]/AGENTS.md" ~/.codex/AGENTS.md
-    ln -sf "[PATH_TO_CLONED_REPO]/AGENTS.md" ~/.copilot/AGENTS.md
-    ln -sf "[PATH_TO_CLONED_REPO]/AGENTS.md" ~/.gemini/GEMINI.md
+    ln -sf "$PWD/AGENTS.md" ~/.claude/AGENTS.md
+    ln -sf "$PWD/CLAUDE.md" ~/.claude/CLAUDE.md
+    ln -sf "$PWD/AGENTS.md" ~/.codex/AGENTS.md
+    ln -sf "$PWD/AGENTS.md" ~/.copilot/AGENTS.md
+    ln -sf "$PWD/AGENTS.md" ~/.gemini/GEMINI.md
     ```
 
 3. **Create symbolic links (skills directory):**
 
     ```bash
-    ln -sfn "[PATH_TO_CLONED_REPO]/skills" ~/.claude/skills
-    ln -sfn "[PATH_TO_CLONED_REPO]/skills" ~/.codex/skills
-    ln -sfn "[PATH_TO_CLONED_REPO]/skills" ~/.copilot/skills
-    ln -sfn "[PATH_TO_CLONED_REPO]/skills" ~/.gemini/skills
+    cp -as $PWD/skills/* ~/.claude/skills/
+    cp -as $PWD/skills/* ~/.codex/skills/
+    cp -as $PWD/skills/* ~/.copilot/skills/
+    cp -as $PWD/skills/* ~/.gemini/antigravity-cli/skills/
     ```
