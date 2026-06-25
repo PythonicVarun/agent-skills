@@ -257,17 +257,17 @@ jobs:
 
                     # Emoji severity badge
                     case "$SEV" in
-                      LOW)      BADGE="🟢 LOW"   ; (( SAFE++   )) ;;
-                      MEDIUM)   BADGE="🟡 MEDIUM"; (( CAUTION++ )) ;;
-                      HIGH)     BADGE="🔴 HIGH"  ; (( HIGH++   )) ;;
-                      CRITICAL) BADGE="🚨 CRIT"  ; (( CRIT++   )) ;;
+                      LOW)      BADGE="🟢 LOW"   ; (( ++SAFE    )) ;;
+                      MEDIUM)   BADGE="🟡 MEDIUM"; (( ++CAUTION )) ;;
+                      HIGH)     BADGE="🔴 HIGH"  ; (( ++HIGH    )) ;;
+                      CRITICAL) BADGE="🚨 CRIT"  ; (( ++CRIT    )) ;;
                       *)        BADGE="⚪ $SEV"  ;;
                     esac
 
                     echo "| \`$SKILL\` | $SCORE | $BADGE | $RECO | $CNT |" \
                       >> "$GITHUB_STEP_SUMMARY"
 
-                    (( TOTAL++ ))
+                    (( ++TOTAL ))
                   done
 
                   echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -291,7 +291,7 @@ jobs:
                     if [[ "$SEV" == "HIGH" || "$SEV" == "CRITICAL" ]]; then
                       SKILL=$(echo "$f" | sed 's/^report-//; s/\.json$//')
                       echo "::error file=$SKILL/SKILL.md::SkillSpector rated this skill $SEV - DO NOT INSTALL"
-                      (( BLOCKED++ ))
+                      (( ++BLOCKED ))
                     fi
                   done
 
