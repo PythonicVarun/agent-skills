@@ -1,0 +1,300 @@
+# Scans every Agent Skill using NVIDIA/SkillSpector (https://github.com/nvidia/skillspector).
+#
+# Outputs:
+#   - SARIF reports -> GitHub Security tab (Code Scanning alerts)
+#   - JSON reports  -> Actions artifacts (30-day retention)
+#   - Markdown table -> Job Summary
+#
+# Secrets (all optional -> omit for static-only analysis):
+#   SKILLSPECTOR_PROVIDER   "anthropic" | "openai" | "nv_build"
+#   ANTHROPIC_API_KEY       for provider=anthropic
+#   OPENAI_API_KEY          for provider=openai
+#   NVIDIA_INFERENCE_KEY    for provider=nv_build
+#   OPENAI_BASE_URL         for provider=openai
+#   SKILLSPECTOR_MODEL      for provider=openai
+#
+# Variables:
+#   SKILLSPECTOR_MODEL      for provider=openai
+
+name: SkillSpector Security Scan
+
+on:
+    push:
+        paths:
+            - "**/SKILL.md"
+            - "**/scripts/**"
+            - ".github/workflows/skillspector-scan.yml"
+    pull_request:
+        branches: ["@pythonicvarun", main, master]
+        paths:
+            - "**/SKILL.md"
+            - "**/scripts/**"
+    schedule:
+        - cron: "0 6 * * 1"
+    workflow_dispatch:
+        inputs:
+            use_llm:
+                description: "Enable LLM semantic analysis (requires provider secret)"
+                type: boolean
+                default: false
+
+permissions:
+    contents: read
+    security-events: write
+    actions: read
+
+concurrency:
+    group: skillspector-${{ github.ref }}
+    cancel-in-progress: true
+
+# Job 1: Discover all skill directories
+jobs:
+    discover:
+        name: Discover Skills
+        runs-on: ubuntu-latest
+
+        outputs:
+            matrix: ${{ steps.find.outputs.matrix }}
+            count: ${{ steps.find.outputs.count }}
+
+        steps:
+            - name: Checkout @pythonicvarun branch
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 1
+
+            # Emit a JSON array of every directory that contains a SKILL.md
+            - name: Find skill directories
+              id: find
+              run: |
+                  mapfile -t DIRS < <(
+                    find . -name "SKILL.md" \
+                      -not -path "./.git/*" \
+                      -exec dirname {} \; \
+                    | sort -u
+                  )
+
+                  if [ ${#DIRS[@]} -eq 0 ]; then
+                    echo "No SKILL.md files found - nothing to scan."
+                    echo 'matrix=[]' >> "$GITHUB_OUTPUT"
+                    echo 'count=0'   >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+
+                  # Build JSON array for matrix
+                  MATRIX=$(printf '%s\n' "${DIRS[@]}" | jq -R . | jq -sc .)
+                  echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+                  echo "count=${#DIRS[@]}"  >> "$GITHUB_OUTPUT"
+
+                  echo "### Discovered ${#DIRS[@]} skill(s)" >> "$GITHUB_STEP_SUMMARY"
+                  printf '```\n'         >> "$GITHUB_STEP_SUMMARY"
+                  printf '%s\n' "${DIRS[@]}" >> "$GITHUB_STEP_SUMMARY"
+                  printf '```\n'         >> "$GITHUB_STEP_SUMMARY"
+
+    # Job 2: Run SkillSpector once per skill (matrix)
+    scan:
+        name: "Scan: ${{ matrix.skill }}"
+        needs: discover
+        if: needs.discover.outputs.count != '0'
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            max-parallel: 6
+            matrix:
+                skill: ${{ fromJson(needs.discover.outputs.matrix) }}
+
+        steps:
+            - name: Checkout @pythonicvarun branch
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 1
+
+            - name: Set up Python 3.13
+              uses: actions/setup-python@v6
+              with:
+                  python-version: "3.13"
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+              with:
+                  version: "latest"
+                  enable-cache: true
+
+            # Cache the SkillSpector venv between runs
+            - name: Cache SkillSpector install
+              id: cache-ss
+              uses: actions/cache@v6
+              with:
+                  path: /opt/skillspector
+                  key: skillspector-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
+                  restore-keys: skillspector-${{ runner.os }}-
+
+            - name: Install SkillSpector
+              if: steps.cache-ss.outputs.cache-hit != 'true'
+              run: |
+                  git clone --depth 1 https://github.com/NVIDIA/SkillSpector.git /opt/skillspector
+                  cd /opt/skillspector
+                  uv venv .venv
+                  source .venv/bin/activate
+                  uv pip install -e ".[all]" || uv pip install -e .
+
+            - name: Add SkillSpector to PATH
+              run: echo "/opt/skillspector/.venv/bin" >> "$GITHUB_PATH"
+
+            # Derive a filesystem-safe artifact name from the skill path
+            - name: Compute safe artifact name
+              id: slug
+              run: |
+                  RAW="${{ matrix.skill }}"
+                  # Strip leading ./ and replace / with __
+                  SAFE="${RAW#./}"
+                  SAFE="${SAFE//\//__}"
+                  # Fallback for root-level skills
+                  [ -z "$SAFE" ] && SAFE="root"
+                  echo "name=$SAFE" >> "$GITHUB_OUTPUT"
+
+            # Determine LLM mode
+            - name: Resolve LLM flags
+              id: llm
+              env:
+                  SKILLSPECTOR_PROVIDER: ${{ secrets.SKILLSPECTOR_PROVIDER }}
+                  USE_LLM_INPUT: ${{ inputs.use_llm }}
+              run: |
+                  if [ -n "$SKILLSPECTOR_PROVIDER" ] || [ "$USE_LLM_INPUT" = "true" ]; then
+                    echo "flags=" >> "$GITHUB_OUTPUT"
+                    echo "mode=LLM + static" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "flags=--no-llm" >> "$GITHUB_OUTPUT"
+                    echo "mode=static only" >> "$GITHUB_OUTPUT"
+                  fi
+
+            # SARIF scan
+            - name: "SkillSpector → SARIF (${{ steps.llm.outputs.mode }})"
+              env:
+                  SKILLSPECTOR_PROVIDER: ${{ secrets.SKILLSPECTOR_PROVIDER }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  NVIDIA_INFERENCE_KEY: ${{ secrets.NVIDIA_INFERENCE_KEY }}
+                  OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+                  SKILLSPECTOR_MODEL: ${{ vars.SKILLSPECTOR_MODEL }}
+              run: |
+                  skillspector scan "${{ matrix.skill }}" \
+                    ${{ steps.llm.outputs.flags }} \
+                    --format sarif \
+                    --output "sarif-${{ steps.slug.outputs.name }}.sarif" \
+                  || true   # non-zero exit = high risk, not a workflow failure
+
+            # JSON scan (for summary table)
+            - name: "SkillSpector → JSON (${{ steps.llm.outputs.mode }})"
+              env:
+                  SKILLSPECTOR_PROVIDER: ${{ secrets.SKILLSPECTOR_PROVIDER }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  NVIDIA_INFERENCE_KEY: ${{ secrets.NVIDIA_INFERENCE_KEY }}
+              run: |
+                  skillspector scan "${{ matrix.skill }}" \
+                    ${{ steps.llm.outputs.flags }} \
+                    --format json \
+                    --output "report-${{ steps.slug.outputs.name }}.json" \
+                  || true
+
+            # Upload SARIF -> GitHub Security tab
+            - name: Upload SARIF to GitHub Security
+              if: always()
+              uses: github/codeql-action/upload-sarif@v4
+              with:
+                  sarif_file: sarif-${{ steps.slug.outputs.name }}.sarif
+                  category: skillspector/${{ steps.slug.outputs.name }}
+
+            # Upload JSON report as artifact
+            - name: Upload JSON report
+              if: always()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: skillspector-${{ steps.slug.outputs.name }}
+                  path: report-${{ steps.slug.outputs.name }}.json
+                  retention-days: 30
+                  if-no-files-found: warn
+
+    # Job 3: Aggregate summary across all skills
+    summary:
+        name: Scan Summary
+        needs: [discover, scan]
+        if: always() && needs.discover.outputs.count != '0'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Download all JSON reports
+              uses: actions/download-artifact@v8
+              with:
+                  pattern: skillspector-*
+                  merge-multiple: true
+
+            - name: Build summary table
+              run: |
+                  echo "## 🔍 SkillSpector Scan Results" >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "Repo: **${{ github.repository }}** · Branch: **\`${{ github.ref_name }}\`**" \
+                    >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "| Skill | Score | Severity | Recommendation | Issues |" \
+                    >> "$GITHUB_STEP_SUMMARY"
+                  echo "|-------|------:|----------|----------------|-------:|" \
+                    >> "$GITHUB_STEP_SUMMARY"
+
+                  TOTAL=0; SAFE=0; CAUTION=0; HIGH=0; CRIT=0
+
+                  for f in report-*.json; do
+                    [ -f "$f" ] || continue
+
+                    SKILL=$(echo "$f" | sed 's/^report-//; s/\.json$//; s/__/\//g')
+                    SCORE=$(jq -r '.risk_score        // "N/A"' "$f" 2>/dev/null)
+                    SEV=$(  jq -r '.risk_severity     // "N/A"' "$f" 2>/dev/null)
+                    RECO=$( jq -r '.risk_recommendation // "N/A"' "$f" 2>/dev/null)
+                    CNT=$(  jq -r '.filtered_findings | length' "$f" 2>/dev/null || echo 0)
+
+                    # Emoji severity badge
+                    case "$SEV" in
+                      LOW)      BADGE="🟢 LOW"   ; (( SAFE++   )) ;;
+                      MEDIUM)   BADGE="🟡 MEDIUM"; (( CAUTION++ )) ;;
+                      HIGH)     BADGE="🔴 HIGH"  ; (( HIGH++   )) ;;
+                      CRITICAL) BADGE="🚨 CRIT"  ; (( CRIT++   )) ;;
+                      *)        BADGE="⚪ $SEV"  ;;
+                    esac
+
+                    echo "| \`$SKILL\` | $SCORE | $BADGE | $RECO | $CNT |" \
+                      >> "$GITHUB_STEP_SUMMARY"
+
+                    (( TOTAL++ ))
+                  done
+
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "**Totals - $TOTAL skill(s) scanned:** \
+                    🟢 $SAFE safe · \
+                    🟡 $CAUTION caution · \
+                    🔴 $HIGH high · \
+                    🚨 $CRIT critical" \
+                    >> "$GITHUB_STEP_SUMMARY"
+                  echo "" >> "$GITHUB_STEP_SUMMARY"
+                  echo "> Full vulnerability details are available in the **Security → Code Scanning** tab." \
+                    >> "$GITHUB_STEP_SUMMARY"
+
+            # Fail the workflow if any skill is HIGH or CRITICAL
+            - name: Enforce risk gate
+              run: |
+                  BLOCKED=0
+                  for f in report-*.json; do
+                    [ -f "$f" ] || continue
+                    SEV=$(jq -r '.risk_severity // "LOW"' "$f" 2>/dev/null)
+                    if [[ "$SEV" == "HIGH" || "$SEV" == "CRITICAL" ]]; then
+                      SKILL=$(echo "$f" | sed 's/^report-//; s/\.json$//')
+                      echo "::error file=$SKILL/SKILL.md::SkillSpector rated this skill $SEV - DO NOT INSTALL"
+                      (( BLOCKED++ ))
+                    fi
+                  done
+
+                  if (( BLOCKED > 0 )); then
+                    echo "::error::$BLOCKED skill(s) exceeded the HIGH/CRITICAL risk threshold."
+                    exit 1
+                  fi
+                  echo "All scanned skills passed the risk gate. ✅"
