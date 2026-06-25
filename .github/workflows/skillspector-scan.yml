@@ -250,10 +250,10 @@ jobs:
                     [ -f "$f" ] || continue
 
                     SKILL=$(echo "$f" | sed 's/^report-//; s/\.json$//; s/__/\//g')
-                    SCORE=$(jq -r '.risk_score        // "N/A"' "$f" 2>/dev/null)
-                    SEV=$(  jq -r '.risk_severity     // "N/A"' "$f" 2>/dev/null)
-                    RECO=$( jq -r '.risk_recommendation // "N/A"' "$f" 2>/dev/null)
-                    CNT=$(  jq -r '.filtered_findings | length' "$f" 2>/dev/null || echo 0)
+                    SCORE=$(jq -r '.risk_assessment.score          // "N/A"' "$f" 2>/dev/null)
+                    SEV=$(  jq -r '.risk_assessment.severity       // "N/A"' "$f" 2>/dev/null)
+                    RECO=$( jq -r '.risk_assessment.recommendation // "N/A"' "$f" 2>/dev/null)
+                    CNT=$(  jq -r '.issues | length'               "$f" 2>/dev/null || echo 0)
 
                     # Emoji severity badge
                     case "$SEV" in
@@ -287,7 +287,7 @@ jobs:
                   BLOCKED=0
                   for f in report-*.json; do
                     [ -f "$f" ] || continue
-                    SEV=$(jq -r '.risk_severity // "LOW"' "$f" 2>/dev/null)
+                    SEV=$(jq -r '.risk_assessment.severity // "LOW"' "$f" 2>/dev/null)
                     if [[ "$SEV" == "HIGH" || "$SEV" == "CRITICAL" ]]; then
                       SKILL=$(echo "$f" | sed 's/^report-//; s/\.json$//')
                       echo "::error file=$SKILL/SKILL.md::SkillSpector rated this skill $SEV - DO NOT INSTALL"
