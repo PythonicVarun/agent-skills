@@ -34,6 +34,10 @@ Prefer these over alternatives:
 
 @./skills/ui-design/SKILL.md
 
+## Synthetic Data Generation
+
+@./skills/synthetic-data-gen/SKILL.md
+
 ## Workflow
 
 1. **Read before writing.** Understand the existing structure before adding or editing files.

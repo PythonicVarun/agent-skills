@@ -13,8 +13,10 @@ This repository contains shared instructions for AI agents to maintain consisten
 │   │   └── SKILL.md                 # Code-specific style rules (Python, JS/TS, general practices)
 │   ├── data-analysis/
 │   │   └── SKILL.md                 # Investigative data analysis guidelines and best practices
-│   └── ui-design/
-│       └── SKILL.md                 # UI design guidelines, themes, and reveal transitions
+│   ├── ui-design/
+│   │   └── SKILL.md                 # UI design guidelines, themes, and reveal transitions
+│   └── synthetic-data-gen/
+│       └── SKILL.md                 # Synthetic data generation guidelines and best practices
 └── README.md
 ```
 
@@ -23,6 +25,7 @@ This repository contains shared instructions for AI agents to maintain consisten
 - **`skills/coding-style/SKILL.md`** - Language-specific style guide with examples. Loaded automatically via the `@` directive in `AGENTS.md` when the agent is working on code.
 - **`skills/data-analysis/SKILL.md`** - Guidelines for investigative data analysis, including definition, signal hunting, verification, and formatting. Loaded automatically via the `@` directive in `AGENTS.md` when the agent is performing data analysis.
 - **`skills/ui-design/SKILL.md`** - UI design rules, theme toggles, and circular transitions. Loaded automatically via the `@` directive in `AGENTS.md` when the agent is designing interfaces.
+- **`skills/synthetic-data-gen/SKILL.md`** - Synthetic data generation guidelines and best practices. Loaded automatically via the `@` directive in `AGENTS.md` when the agent is generating synthetic data.
 
 ## Configuration Directory Mapping
 
