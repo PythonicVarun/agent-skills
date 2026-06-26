@@ -127,11 +127,11 @@ Run Command Prompt as an **Administrator**.
 2. **Create symbolic links (instruction files):**
 
     ```bash
-    ln -sf "$PWD/AGENTS.md" ~/.claude/AGENTS.md
-    ln -sf "$PWD/CLAUDE.md" ~/.claude/CLAUDE.md
-    ln -sf "$PWD/AGENTS.md" ~/.codex/AGENTS.md
-    ln -sf "$PWD/AGENTS.md" ~/.copilot/AGENTS.md
-    ln -sf "$PWD/AGENTS.md" ~/.gemini/GEMINI.md
+    ln -sf $PWD/AGENTS.md ~/.claude/AGENTS.md
+    ln -sf $PWD/CLAUDE.md ~/.claude/CLAUDE.md
+    ln -sf $PWD/AGENTS.md ~/.codex/AGENTS.md
+    ln -sf $PWD/AGENTS.md ~/.copilot/AGENTS.md
+    ln -sf $PWD/AGENTS.md ~/.gemini/GEMINI.md
     ```
 
 3. **Create symbolic links (skills directory):**
