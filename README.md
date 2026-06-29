@@ -127,18 +127,18 @@ Run Command Prompt as an **Administrator**.
 2. **Create symbolic links (instruction files):**
 
     ```bash
-    ln -sf $PWD/AGENTS.md ~/.claude/AGENTS.md
-    ln -sf $PWD/CLAUDE.md ~/.claude/CLAUDE.md
-    ln -sf $PWD/AGENTS.md ~/.codex/AGENTS.md
-    ln -sf $PWD/AGENTS.md ~/.copilot/AGENTS.md
-    ln -sf $PWD/AGENTS.md ~/.gemini/GEMINI.md
+    ln -s $PWD/AGENTS.md ~/.claude/AGENTS.md
+    ln -s $PWD/CLAUDE.md ~/.claude/CLAUDE.md
+    ln -s $PWD/AGENTS.md ~/.codex/AGENTS.md
+    ln -s $PWD/AGENTS.md ~/.copilot/AGENTS.md
+    ln -s $PWD/AGENTS.md ~/.gemini/GEMINI.md
     ```
 
 3. **Create symbolic links (skills directory):**
 
     ```bash
-    cp -as $PWD/skills/* ~/.claude/skills/
-    cp -as $PWD/skills/* ~/.codex/skills/
-    cp -as $PWD/skills/* ~/.copilot/skills/
-    cp -as $PWD/skills/* ~/.gemini/antigravity-cli/skills/
+    ln -sn $PWD/skills ~/.claude/skills
+    ln -sn $PWD/skills ~/.agents/skills  # Codex
+    ln -sn $PWD/skills ~/.copilot/skills
+    ln -sn $PWD/skills ~/.gemini/antigravity-cli/skills
     ```
