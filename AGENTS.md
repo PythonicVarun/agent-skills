@@ -60,3 +60,4 @@ $LLM_LOGGING_PATH/<agent_currently_user_talking_to_like_copilot_codex_etc>/cmds/
 - Be concise. Explain _what_ changed and _why_, not a line-by-line narration.
 - If the prompt is unclear or underspecified, ask for clarification before proceeding - don't make assumptions that could lead the work in the wrong direction.
 - Surface blockers immediately (missing dependency, permission error, unclear requirement) instead of working around them silently.
+- ALWAYS follow the YAGNI principles, and one-liner solutions.
