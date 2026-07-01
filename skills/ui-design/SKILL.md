@@ -1,5 +1,5 @@
 ---
-name: UI Design
+name: ui-design
 description: >
     UI design guidelines including Light/Dark mode support, custom theme transitions,
     and premium interactive reveal animations. Apply this skill when designing, building,

@@ -1,5 +1,5 @@
 ---
-name: Coding Style for Python and JS/TS
+name: coding-style
 description: >
     Coding style rules for Python and JS/TS. Apply this skill
     whenever writing, editing, reviewing, or generating any code - Python scripts,

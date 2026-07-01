@@ -1,5 +1,5 @@
 ---
-name: Synthetic Data Generation
+name: synthetic-data-generation
 description: Generate realistic, edge-case-rich synthetic datasets for any domain - perfect for prototyping, testing, and development. Use this skill whenever someone needs to generate fake/mock/dummy/synthetic data, seed a database, create test fixtures, populate a schema with sample records, or simulate realistic data for a prototype or feature. Trigger on phrases like "generate synthetic data", "create test data", "mock data for my API", "seed data for", "sample dataset", "dummy records", "fake data for testing", "realistic test fixtures", "populate this schema", or any request to fill a schema/table/model/form with plausible data. Also trigger when the user shows you a schema, TS interface, Pydantic model, DB migration, or OpenAPI contract and wants data that exercises it - including edge cases. If someone is building a prototype and needs data to show it working, this skill applies.
 ---
 

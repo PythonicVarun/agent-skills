@@ -1,5 +1,5 @@
 ---
-name: Investigative Data Analysis
+name: data-analysis
 description: >
     Use when the user wants to analyze, investigate, or find patterns in a dataset - 
     e.g., "what does this data show", "find insights in this data or CSV", "analyze trends in". 
